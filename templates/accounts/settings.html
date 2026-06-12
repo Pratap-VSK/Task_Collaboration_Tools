@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Settings - CollabTools{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Profile Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-700 p-6">
+            <div class="text-center mb-4">
+                <img src="https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username }}&background={{ user_color_hex|slice:'1:' }}&color=fff&size=120"
+                     alt="{{ user.username }}" class="w-20 h-20 rounded-full mx-auto mb-4">
+                <h3 class="text-lg font-semibold">{{ user.get_full_name|default:user.username }}</h3>
+                <p class="text-gray-600 dark:text-gray-400">@{{ user.username }}</p>
+            </div>
+            <a href="{% url 'profile_edit' %}" class="block w-full text-center py-2 rounded-lg transition" style="background-color: var(--color-primary); color: white;">
+                <i class="fas fa-edit mr-2"></i>Edit Profile
+            </a>
+        </div>
+
+        <!-- Theme Settings -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-700 p-6">
+            <h3 class="text-lg font-semibold mb-4">
+                <i class="fas fa-palette mr-2"></i>Appearance
+            </h3>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">Theme Mode</label>
+                <div class="flex gap-2">
+                    <form method="post" action="{% url 'change_theme' %}" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="theme_mode" value="light">
+                        <button type="submit" class="flex-1 py-2 px-3 rounded-lg border-2 transition {% if user_theme == 'light' %}border-2{% else %}border-gray-300 dark:border-gray-600{% endif %}"
+                                style="{% if user_theme == 'light' %}border-color: var(--color-primary);{% endif %}">
+                            <i class="fas fa-sun mr-1"></i>Light
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'change_theme' %}" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="theme_mode" value="dark">
+                        <button type="submit" class="flex-1 py-2 px-3 rounded-lg border-2 transition {% if user_theme == 'dark' %}border-2{% else %}border-gray-300 dark:border-gray-600{% endif %}"
+                                style="{% if user_theme == 'dark' %}border-color: var(--color-primary);{% endif %}">
+                            <i class="fas fa-moon mr-1"></i>Dark
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-2">Color Theme</label>
+                <div class="grid grid-cols-3 gap-2">
+                    {% for value, label in color_schemes %}
+                    <form method="post" action="{% url 'change_theme' %}" class="inline" style="display: none;" id="color-form-{{ value }}">
+                        {% csrf_token %}
+                        <input type="hidden" name="color_scheme" value="{{ value }}">
+                    </form>
+                    <button onclick="document.getElementById('color-form-{{ value }}').submit();"
+                            class="color-btn color-{{ value }} {% if user_color == value %}active{% endif %}"
+                            title="{{ label }}"></button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Settings -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-700 p-6">
+            <h3 class="text-lg font-semibold mb-4">
+                <i class="fas fa-shield-alt mr-2"></i>Account
+            </h3>
+
+            <a href="{% url 'account_change_password' %}" class="block w-full text-center py-2 rounded-lg mb-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                <i class="fas fa-key mr-2"></i>Change Password
+            </a>
+            <a href="{% url 'account_delete' %}" class="block w-full text-center py-2 rounded-lg bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-100 hover:bg-red-200 dark:hover:bg-red-800 transition">
+                <i class="fas fa-trash mr-2"></i>Delete Account
+            </a>
+        </div>
+    </div>
+
+    <!-- Bio Card -->
+    {% if user.userprofile.bio %}
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-700 p-6 mt-6">
+        <h3 class="text-lg font-semibold mb-2">Bio</h3>
+        <p class="text-gray-600 dark:text-gray-400">{{ user.userprofile.bio }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Task Collaboration Tool{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <!-- Stats Cards -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm font-medium">Total Tasks</p>
+                <p class="text-3xl font-bold text-gray-800">{{ total_tasks }}</p>
+            </div>
+            <i class="fas fa-tasks text-blue-500 text-3xl opacity-50"></i>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm font-medium">Assigned to You</p>
+                <p class="text-3xl font-bold text-gray-800">{{ assigned_tasks }}</p>
+            </div>
+            <i class="fas fa-user-check text-green-500 text-3xl opacity-50"></i>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm font-medium">Projects</p>
+                <p class="text-3xl font-bold text-gray-800">{{ projects.count }}</p>
+            </div>
+            <i class="fas fa-project-diagram text-purple-500 text-3xl opacity-50"></i>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm font-medium">Quick Action</p>
+                <a href="{% url 'project_create' %}" class="text-blue-600 hover:text-blue-800 font-semibold">+ New Project</a>
+            </div>
+            <i class="fas fa-plus-circle text-blue-500 text-3xl opacity-50"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Projects Overview -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b">
+                <h3 class="text-lg font-semibold text-gray-800">Your Projects</h3>
+            </div>
+            <div class="divide-y">
+                {% if projects %}
+                    {% for project in projects %}
+                    <div class="p-6 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-3 h-3 rounded-full" style="background-color: {{ project.color }}"></div>
+                                    <h4 class="font-semibold text-gray-800">{{ project.name }}</h4>
+                                    <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                                        {{ project.tasks.count }} tasks
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1">{{ project.description|truncatewords:15 }}</p>
+                            </div>
+                            <a href="{% url 'project_detail' project.id %}" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="p-6 text-center text-gray-500">
+                        <i class="fas fa-inbox text-4xl mb-3 opacity-50"></i>
+                        <p>No projects yet. <a href="{% url 'project_create' %}" class="text-blue-600 hover:underline">Create one</a></p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Tasks -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-800">Recent Tasks</h3>
+        </div>
+        <div class="divide-y max-h-96 overflow-y-auto">
+            {% if recent_tasks %}
+                {% for task in recent_tasks %}
+                <a href="{% url 'task_detail' task.id %}" class="block p-4 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h4 class="text-sm font-medium text-gray-800 line-clamp-2">{{ task.title }}</h4>
+                            <p class="text-xs text-gray-500 mt-1">{{ task.project.name }}</p>
+                        </div>
+                        <span class="text-xs priority-{{ task.priority }} px-2 py-1 rounded whitespace-nowrap ml-2">
+                            {{ task.get_priority_display }}
+                        </span>
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="p-4 text-center text-gray-500 text-sm">No tasks yet</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

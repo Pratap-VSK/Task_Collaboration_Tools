@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}About Us - CollabTools{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-4xl font-bold mb-8">About CollabTools</h1>
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-700 p-8 space-y-6">
+        <section>
+            <h2 class="text-2xl font-bold mb-4">Our Mission</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                CollabTools is built to make team collaboration simple, efficient, and enjoyable. We believe that great work happens when teams can communicate clearly and manage their work effortlessly.
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-2xl font-bold mb-4">Our Story</h2>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                Founded in 2024, CollabTools started with a simple idea: provide teams with a platform that is both powerful and easy to use. We've grown to serve thousands of teams across the world.
+            </p>
+        </section>
+
+        <section>
+            <h2 class="text-2xl font-bold mb-4">Our Values</h2>
+            <ul class="space-y-3 text-gray-700 dark:text-gray-300">
+                <li class="flex items-start gap-3">
+                    <i class="fas fa-check text-green-500 mt-1"></i>
+                    <span><strong>Simplicity:</strong> We make complex workflows simple and intuitive.</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <i class="fas fa-check text-green-500 mt-1"></i>
+                    <span><strong>Transparency:</strong> Your data is yours, and we respect your privacy.</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <i class="fas fa-check text-green-500 mt-1"></i>
+                    <span><strong>Excellence:</strong> We're committed to continuous improvement.</span>
+                </li>
+            </ul>
+        </section>
+    </div>
+</div>
+{% endblock %}

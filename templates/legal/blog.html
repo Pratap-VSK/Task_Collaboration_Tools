@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Blog - CollabTools{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-4xl font-bold mb-8">CollabTools Blog</h1>
+
+    <div class="grid gap-6">
+        <article class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-700 p-8 hover:shadow-lg transition">
+            <h2 class="text-2xl font-bold mb-2">Getting Started with CollabTools</h2>
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">Posted on June 1, 2024</p>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                Learn how to set up your first project and start collaborating with your team in minutes.
+            </p>
+            <a href="#" class="text-blue-600 dark:text-blue-400 font-medium hover:underline">Read More →</a>
+        </article>
+
+        <article class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-700 p-8 hover:shadow-lg transition">
+            <h2 class="text-2xl font-bold mb-2">Best Practices for Task Management</h2>
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">Posted on May 15, 2024</p>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                Discover strategies to organize your tasks effectively and boost team productivity.
+            </p>
+            <a href="#" class="text-blue-600 dark:text-blue-400 font-medium hover:underline">Read More →</a>
+        </article>
+
+        <article class="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-700 p-8 hover:shadow-lg transition">
+            <h2 class="text-2xl font-bold mb-2">Collaboration Tips for Remote Teams</h2>
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">Posted on May 1, 2024</p>
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                Tips and tricks for keeping your remote team connected and productive using CollabTools.
+            </p>
+            <a href="#" class="text-blue-600 dark:text-blue-400 font-medium hover:underline">Read More →</a>
+        </article>
+    </div>
+</div>
+{% endblock %}
