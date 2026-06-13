@@ -68,6 +68,13 @@ class CustomSignupForm(forms.Form):
         label='Choose Your Theme'
     )
 
+    # NAYA ADD KIYA HAI: Username error ko permanently fix karne ke liye
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("This UserName Already Exist.")
+        return username
+
     def clean(self):
         cleaned_data = super().clean()
         password1 = cleaned_data.get('password1')
@@ -85,11 +92,12 @@ class CustomSignupForm(forms.Form):
             password=self.cleaned_data['password1']
         )
 
-        # Update UserProfile with theme preferences (signal creates it automatically)
-        user.userprofile.color_scheme = self.cleaned_data.get('color_scheme', 'blue')
-        user.userprofile.theme_mode = self.cleaned_data.get('theme_mode', 'light')
-        user.userprofile.save()
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        profile.color_scheme = self.cleaned_data.get('color_scheme', 'blue')
+        profile.theme_mode = self.cleaned_data.get('theme_mode', 'light')
+        profile.save()
 
         return user
+        
 
 

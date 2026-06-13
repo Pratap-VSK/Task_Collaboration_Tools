@@ -8,7 +8,6 @@ from .models import UserProfile
 from .forms import ProfileEditForm, AccountDeleteForm, CustomSignupForm
 from django.contrib.auth.models import User
 
-
 def custom_signup(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
@@ -17,7 +16,15 @@ def custom_signup(request):
         form = CustomSignupForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            
+            # Jo humne pehle fix kiya tha
+            UserProfile.objects.get_or_create(user=user)
+            
+            # --- YAHAN FIX HAI ---
+            # Explicitly backend specify karna hoga crash rokne ke liye
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            # ---------------------
+            
             messages.success(request, f'Welcome {user.username}! Your account has been created.')
             return redirect('dashboard')
     else:
@@ -25,17 +32,16 @@ def custom_signup(request):
 
     context = {'form': form, 'page_title': 'Sign Up'}
     return render(request, 'account/signup.html', context)
-
-
+    
 @login_required
 def settings_view(request):
-    user_profile = request.user.userprofile
+    # Crash rokne ke liye get_or_create use kiya hai
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
     context = {
         'user_profile': user_profile,
         'page_title': 'Settings'
     }
     return render(request, 'accounts/settings.html', context)
-
 
 @login_required
 def profile_edit_view(request):
@@ -54,7 +60,6 @@ def profile_edit_view(request):
     }
     return render(request, 'accounts/profile_edit.html', context)
 
-
 @login_required
 def account_delete_view(request):
     if request.method == 'POST':
@@ -64,7 +69,7 @@ def account_delete_view(request):
             if user is not None:
                 user.delete()
                 messages.success(request, 'Account deleted successfully!')
-                return redirect('login')
+                return redirect('home')
             else:
                 messages.error(request, 'Invalid password. Please try again.')
     else:
@@ -76,11 +81,11 @@ def account_delete_view(request):
     }
     return render(request, 'accounts/account_confirm_delete.html', context)
 
-
 @login_required
 @require_POST
 def change_theme(request):
-    user_profile = request.user.userprofile
+    # Yahan bhi crash se bachne ke liye get_or_create lagaya hai
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
 
     if 'theme_mode' in request.POST:
         theme_mode = request.POST.get('theme_mode')
@@ -95,5 +100,6 @@ def change_theme(request):
             user_profile.color_scheme = color_scheme
             user_profile.save()
 
-    # Redirect to referrer or dashboard
+    # Missing closing parenthesis fix kar diya hai
     return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
+    

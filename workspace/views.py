@@ -6,6 +6,7 @@ from django.db.models import Q
 from .models import Project, Task, Comment
 from django.contrib.auth.models import User
 import json
+from accounts.models import UserProfile 
 
 
 def home(request):
@@ -13,23 +14,26 @@ def home(request):
         return redirect('dashboard')
     return render(request, 'workspace/home.html')
 
-
 @login_required
 def dashboard(request):
     user = request.user
+    
+    # Ye line magic karegi: agar profile nahi hai toh automatically bana degi
+    user_profile, created = UserProfile.objects.get_or_create(user=user)
+    
     projects = Project.objects.filter(Q(owner=user) | Q(members=user)).distinct()
     total_tasks = Task.objects.filter(project__in=projects).count()
     assigned_tasks = Task.objects.filter(assigned_to=user).exclude(status='done')
     recent_tasks = Task.objects.filter(project__in=projects).order_by('-created_at')[:5]
 
     context = {
+        'user_profile': user_profile, # Isko context mein pass kar do
         'projects': projects,
         'total_tasks': total_tasks,
         'assigned_tasks': assigned_tasks.count(),
         'recent_tasks': recent_tasks,
     }
     return render(request, 'workspace/dashboard.html', context)
-
 
 @login_required
 def project_list(request):
@@ -109,8 +113,8 @@ def project_members(request, pk):
         try:
             user = User.objects.get(username=username)
             project.members.add(user)
-        except User.DoesNotExist:
-            pass
+        except:
+            massages.error(request, 'User Not Found')
         return redirect('project_members', pk=project.pk)
 
     context = {'project': project}
@@ -126,13 +130,18 @@ def project_delete_member(request, pk, member_id):
     member = get_object_or_404(User, pk=member_id)
     project.members.remove(member)
     return redirect('project_members', pk=project.pk)
+    t.method == 'POST':
 
+    title = request.POST.get('title')
+        description = request.POST.get('description')
+        priority = request.POST.get('priority', 'medium')
+        due_date = request.POST.get('due_date') or None
+        assigned_to_id = request.POST.get('assigned_to')
 
 @login_required
 def task_create(request, project_pk):
     project = get_object_or_404(Project, pk=project_pk)
-    if request.user not in [project.owner] + list(project.members.all()):
-        return redirect('dashboard')
+    # ... baki ka code waisa hi rahega ...
 
     if request.method == 'POST':
         title = request.POST.get('title')
@@ -145,23 +154,18 @@ def task_create(request, project_pk):
         if assigned_to_id:
             assigned_to = get_object_or_404(User, pk=assigned_to_id)
 
+        # YAHAN STATUS ADD KAREIN ('todo' ya jo bhi aapki models.py mein To Do ki key hai)
         Task.objects.create(
             title=title,
             description=description,
             project=project,
             created_by=request.user,
             priority=priority,
+            status='todo',  # <--- YEH LINE ADD KARNI HAI
             due_date=due_date,
             assigned_to=assigned_to
         )
-        return redirect('project_detail', pk=project.pk)
-
-    context = {
-        'project': project,
-        'priorities': dict(Task.PRIORITY_CHOICES),
-        'members': project.members.all()
-    }
-    return render(request, 'workspace/task_form.html', context)
+return redirect('project_detail', pk=project.pk)
 
 
 @login_required
