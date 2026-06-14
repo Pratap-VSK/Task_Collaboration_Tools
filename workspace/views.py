@@ -130,18 +130,19 @@ def project_delete_member(request, pk, member_id):
     member = get_object_or_404(User, pk=member_id)
     project.members.remove(member)
     return redirect('project_members', pk=project.pk)
-    t.method == 'POST':
-
-    title = request.POST.get('title')
-        description = request.POST.get('description')
-        priority = request.POST.get('priority', 'medium')
-        due_date = request.POST.get('due_date') or None
-        assigned_to_id = request.POST.get('assigned_to')
-
+   
 @login_required
 def task_create(request, project_pk):
     project = get_object_or_404(Project, pk=project_pk)
-    # ... baki ka code waisa hi rahega ...
+    
+    # --- FOOLPROOF SECURITY CHECK ---
+    is_owner = (request.user.id == project.owner.id)
+    is_member = project.members.filter(id=request.user.id).exists()
+    
+    if not (is_owner or is_member):
+        messages.error(request, "You don't have permission to add tasks to this project.")
+        return redirect('dashboard')
+    # --------------------------------
 
     if request.method == 'POST':
         title = request.POST.get('title')
@@ -154,19 +155,24 @@ def task_create(request, project_pk):
         if assigned_to_id:
             assigned_to = get_object_or_404(User, pk=assigned_to_id)
 
-        # YAHAN STATUS ADD KAREIN ('todo' ya jo bhi aapki models.py mein To Do ki key hai)
         Task.objects.create(
             title=title,
             description=description,
             project=project,
             created_by=request.user,
             priority=priority,
-            status='todo',  # <--- YEH LINE ADD KARNI HAI
+            status='todo',  
             due_date=due_date,
             assigned_to=assigned_to
         )
-return redirect('project_detail', pk=project.pk)
+        return redirect('project_detail', pk=project.pk)
 
+    context = {
+        'project': project,
+        'priorities': dict(Task.PRIORITY_CHOICES),
+        'members': project.members.all()
+    }
+    return render(request, 'workspace/task_form.html', context)
 
 @login_required
 def task_detail(request, pk):
@@ -216,7 +222,7 @@ def task_delete(request, pk):
 
 
 @login_required
-@require_http_methods(["POST"])
+# @require_http_methods(["POST"])
 def add_comment(request, task_pk):
     task = get_object_or_404(Task, pk=task_pk)
     project = task.project
@@ -235,8 +241,9 @@ def add_comment(request, task_pk):
         'author': comment.author.username,
         'content': comment.content,
         'created_at': comment.created_at.strftime('%Y-%m-%d %H:%M:%S')
+    
     })
-
+    return redirect('dashboard')
 
 @login_required
 def delete_comment(request, comment_pk):
